@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: #eee;
+      text-align: center;
+    }
+
+    #water {
+      margin: 0 auto;
+
+    }
+
+    #water span {
+      width: 210px;
+      display: inline-block;
+      background-color: #fff;
+      vertical-align: top;
+    }
+
+    #water span a {
+      display: block;
+      padding: 5px;
+      border: 1px solid #ccc;
+      text-decoration: none;
+    }
+
+    #water span img {
+      display: block;
+      margin: 0 auto 5px;
+    }
+
+    #water strong {
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="water">
+    <span>
+      <a href="">
+        <img src="http://cued.xunlei.com/demos/publ/img/P_000.jpg" alt="">
+        <strong>000</strong>
+      </a>
+    </span>
+  </div>
+</body>
+<script>
+
+  function Waterfall(el) {
+    this.init(el);
+  }
+  Waterfall.prototype = {
+    //初始化 计算一行放几个span
+    init: function (el) {
+      var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+      this.imageIndex = 0;
+      this.columnWidth = 210;
+      this.columnNum = Math.floor(windowWidth / this.columnWidth);
+      this.loadFinish = false;
+      var i = 0,
+        spans = '';
+      for (; i < this.columnNum; i++) {
+        spans += '<span></span>';
+      }
+      this.el = document.getElementById(el);
+      this.el.innerHTML = spans;
+      this.__proto__ = Waterfall.prototype;
+      this.initImage();
+      this.scroll();
+      return this;
+    },
+    //图片index
+    getImageIndex: function () {
+      if (this.imageIndex < 10) {
+        return '00' + this.imageIndex;
+      } else if (this.imageIndex < 100) {
+        return '0' + this.imageIndex;
+      }else {
+        return this.imageIndex;
+      }
+    },
+    // span的高度小于（滚出屏幕的高度+当前可视区域的高度） 则加载图片 
+    loadImages: function () {
+      var docHeight = document.body.offsetHeight, //文档总高度
+        scrollTop = document.body.scrollTop || document.documentElement.scrollTop || window.pageYOffset, //卷去的高度
+        clientHeight = window.innerHeight || document.documentElement.clientWidth;
+      var i = 0,
+        spans = this.el.getElementsByTagName('span'),
+        finishNum = 0;
+      for (; i < this.columnNum; i++) {
+        var spanHeight = spans[i].offsetHeight;
+        if (spanHeight < scrollTop + clientHeight && this.imageIndex <= 160) {
+          var imageIndex = this.getImageIndex();
+          var a = document.createElement('a');
+          var html = '<img src="http://cued.xunlei.com/demos/publ/img/P_' + imageIndex +
+            '.jpg" alt=""><strong>'+imageIndex+'</strong>';
+            a.innerHTML = html
+          spans[i].appendChild(a);
+          this.imageIndex++;
+        }else {
+          finishNum ++;
+        }
+      }
+      if(finishNum == this.columnNum){
+        this.loadFinish = true;
+      }else {
+        this.loadFinish = false;
+      }
+    },
+    initImage: function (){
+      if(!this.loadFinish){
+        this.loadImages();
+        this.initImage();
+      }
+    },
+    scroll: function(){
+      var self = this;
+      window.onscroll = function(){
+        self.loadImages();
+      }
+    }
+  }
+  var waterfall = new Waterfall('water');
+</script>
+
+</html>
